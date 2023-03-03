@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Add a raster image to a map layer</title>
+    <title>Map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
@@ -31,6 +31,8 @@
             border-radius: 20px;
             z-index: 10;
             padding: 10px;
+
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
         }
 
         .switcher-div {
@@ -138,6 +140,8 @@
             style: 'mapbox://styles/savoryinstitute/cl9syq6l9001115n0owx4m3r8'
         });
 
+        map.addControl(new mapboxgl.NavigationControl());
+
         const main = {
             data: [],
             filters: new Set()
@@ -153,23 +157,29 @@
                 spreadsheets.map(d => d3.csv(d.link))
             ).then(arr => {
 
-                buildData(arr[0], "WMAP", "red")
+                const types = [...new Set(arr[0].map(d => d.type))]
+                if (types) {
+                    types.forEach(typeStr => {
 
-                map.getSource("main").setData(turf.featureCollection(main.data.map(d => d.data).flat()))
+                        const type = typeStr.toLowerCase()
 
-                // main.data.map(d => {
-                //     main.filters.add(d.layer)
-                //     switchersEnableDiv.appendChild(buildSwitcher(d.layer, checked => {
-                //         if (checked) {
-                //             main.filters.add(d.layer)
-                //         } else {
-                //             main.filters.delete(d.layer)
-                //         }
-                //         //update pins 
-                //         const filteredPins = main.data.filter(d => main.filters.has(d.layer)).map(d => d.data).flat()
-                //         map.getSource("main").setData(turf.featureCollection(filteredPins))
-                //     }, true))
-                // })
+                        main.filters.add(type)
+                        switchersEnableDiv.appendChild(buildSwitcher(type, checked => {
+                            if (checked) {
+                                main.filters.add(type)
+                            } else {
+                                main.filters.delete(type)
+                            }
+                            //update pins 
+                            const filteredPins = main.data.filter(d => main.filters.has(d.properties.type.toLowerCase()))
+                            map.getSource("main").setData(turf.featureCollection(filteredPins))
+                        }, true))
+                    })
+
+                }
+
+
+                map.getSource("main").setData(turf.featureCollection(buildData(arr[0])))
 
                 loading.style.display = "none"
             })
@@ -202,8 +212,6 @@
                     coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
                 }
 
-              
-
                 const description = `<div>
                     <div>${data['type']}</div>
                     <h1>${data['title']}</h1>
@@ -232,9 +240,7 @@
         //     map.setLayoutProperty('satellite', 'visibility', display);
         // }, false))
 
-        function buildData(json, layerName, color) {
-
-            console.log('json', json);
+        function buildData(json) {
             json
                 .filter(d => d['latitude'])
                 .forEach(d => {
@@ -247,13 +253,12 @@
                     const { lat, lon, name, type } = pin
                     const colorIndex = Array.from(main.filters).indexOf(type)
                     return turf.point([lon, lat], {
-                        color,
                         name,
                         type,
                         ...pin
                     });
                 });
-            main.data.push({ layer: layerName, data: pins })
+            main.data.push(...pins)
             return pins
         }
 
