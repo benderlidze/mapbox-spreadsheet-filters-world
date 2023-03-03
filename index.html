@@ -9,6 +9,8 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Nunito Sans' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -28,7 +30,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            border-radius: 20px;
+            border-radius: 10px;
             z-index: 10;
             padding: 10px;
 
@@ -118,6 +120,67 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+        }
+
+        .filter-label {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 1rem;
+            color: #1e2022;
+            text-transform: uppercase;
+        }
+
+        .learn-more {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 1rem;
+            color: #db8a33 !important;
+            letter-spacing: 0.05em;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 50px;
+        }
+
+        .learn-more a {
+            color: #db8a33 !important;
+            text-transform: uppercase;
+            text-decoration: none;
+        }
+
+        .learn-more a::after {
+            content: '\2192';
+            margin-left: 5px;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .type {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 1rem;
+            color: #db8a33;
+            text-transform: uppercase;
+        }
+
+        .title {
+            font-family: Alegreya;
+            font-size: 2.4rem;
+            color: #1e2022;
+            padding: 20px 0px;
+            line-height: 40px;
+        }
+
+        .place-name {
+            font-family: 'Nunito Sans', sans-serif;
+            font-size: 1.4rem;
+            color: #1e2022;
+            /* font-weight: bold; */
+            text-transform: uppercase;
+        }
+
+        .mapboxgl-popup-content {
+            min-width: 410px !important;
+            min-height: 150px !important;
+            padding: 20px;
+            box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
+            border-radius: 10px !important;
         }
     </style>
 </head>
@@ -213,13 +276,17 @@
                 }
 
                 const description = `<div>
-                    <div>${data['type']}</div>
-                    <h1>${data['title']}</h1>
-                    <h3>${data['place_name']}</h3>
-                    
-                    <div>${data['description']}</div>
+                    <div class="type">${data['type']}</div>
+                    <div class="title">${data['title']}</div>
+                    <div class="place-name">${data['place_name']}</div>
+                    <div class="learn-more">${data['description']}</div>
                     </div>`
-                new mapboxgl.Popup()
+                new mapboxgl.Popup({
+                    closeButton: false,
+                    // closeOnClick: false,
+                    // closeOnMove: true,
+                    // maxWidth: "auto"
+                })
                     .setLngLat(coordinates)
                     .setHTML(description)
                     .addTo(map);
@@ -300,7 +367,7 @@
         function buildSwitcher(labelText, action, checked = true) {
 
             const div = document.createElement("div")
-            div.className = "switcher-div"
+            div.className = "switcher-div filter-label"
 
             const label = document.createElement("label")
             label.className = "switch"
