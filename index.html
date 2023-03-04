@@ -29,19 +29,42 @@
             background-color: white;
             position: absolute;
             top: 20px;
-            left: 20px;
+            right: 20px;
             border-radius: 10px;
             z-index: 10;
-            padding: 10px;
-
             box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        #filters>div {
+            border-bottom: 1px solid gray;
+
+        }
+
+        #filters>div:last-child {
+            border-bottom: none;
         }
 
         .switcher-div {
             display: flex;
             align-items: center;
-            margin: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
         }
+
+        .switcher-div:hover {
+            background-color: #f2f2f2;
+        }
+
+        .switcher-div:first-child:hover {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .switcher-div:last-child:hover {
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
 
         .switcher-div>div {
             margin-left: 5px;
@@ -124,19 +147,23 @@
 
         .filter-label {
             font-family: 'Nunito Sans', sans-serif;
-            font-size: 1rem;
+            font-size: 0.625rem;
             color: #1e2022;
             text-transform: uppercase;
+            letter-spacing: 1px;
+            user-select: none;
         }
 
         .learn-more {
             font-family: 'Nunito Sans', sans-serif;
-            font-size: 1rem;
+            font-size: 0.625rem;
             color: #db8a33 !important;
             letter-spacing: 0.05em;
             display: flex;
             justify-content: flex-end;
             padding-top: 50px;
+            letter-spacing: 1.4px;
+            font-weight: 600;
         }
 
         .learn-more a {
@@ -148,39 +175,54 @@
         .learn-more a::after {
             content: '\2192';
             margin-left: 5px;
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 500;
         }
 
         .type {
             font-family: 'Nunito Sans', sans-serif;
-            font-size: 1rem;
+            font-size: 0.625rem;
             color: #db8a33;
             text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1.4px;
         }
 
         .title {
             font-family: Alegreya;
-            font-size: 2.4rem;
+            font-size: 1.5rem;
             color: #1e2022;
-            padding: 20px 0px;
+            padding: 5px 0px;
             line-height: 40px;
+
         }
 
         .place-name {
             font-family: 'Nunito Sans', sans-serif;
-            font-size: 1.4rem;
+            font-size: 0.875rem;
             color: #1e2022;
             /* font-weight: bold; */
             text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 1.4px;
         }
 
         .mapboxgl-popup-content {
-            min-width: 410px !important;
-            min-height: 150px !important;
+            min-width: 350px !important;
+            min-height: 100px !important;
             padding: 20px;
             box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
             border-radius: 10px !important;
+        }
+
+        .mapboxgl-ctrl-group:not(:empty) {
+            box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .check-mark {
+            width: 15px;
+            height: 15px;
+            transition-duration: .1s;
         }
     </style>
 </head>
@@ -203,7 +245,7 @@
             style: 'mapbox://styles/savoryinstitute/cl9syq6l9001115n0owx4m3r8'
         });
 
-        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
 
         const main = {
             data: [],
@@ -223,27 +265,37 @@
                 const types = [...new Set(arr[0].map(d => d.type))]
                 if (types) {
                     types.forEach(typeStr => {
-
                         const type = typeStr.toLowerCase()
-
                         main.filters.add(type)
-                        switchersEnableDiv.appendChild(buildSwitcher(type, checked => {
+                        // switchersEnableDiv.appendChild(buildSwitcher(type, checked => {
+                        //     if (checked) {
+                        //         main.filters.add(type)
+                        //     } else {
+                        //         main.filters.delete(type)
+                        //     }
+                        //     //update pins 
+                        //     const filteredPins = main.data.filter(d => main.filters.has(d.properties.type.toLowerCase()))
+                        //     map.getSource("main").setData(turf.featureCollection(filteredPins))
+                        // }, true))
+
+
+
+                        switchersEnableDiv.appendChild(createCustomCheckbox(type, checked => {
                             if (checked) {
                                 main.filters.add(type)
                             } else {
                                 main.filters.delete(type)
                             }
+                            console.log('checked', checked);
                             //update pins 
                             const filteredPins = main.data.filter(d => main.filters.has(d.properties.type.toLowerCase()))
                             map.getSource("main").setData(turf.featureCollection(filteredPins))
                         }, true))
+
+
                     })
-
                 }
-
-
                 map.getSource("main").setData(turf.featureCollection(buildData(arr[0])))
-
                 loading.style.display = "none"
             })
 
@@ -251,19 +303,43 @@
                 'type': 'geojson',
                 'data': turf.featureCollection([])
             });
-            map.addLayer({
-                'id': 'main',
-                'type': 'circle',
-                'source': 'main',
-                'paint': {
-                    'circle-radius': 6,
-                    'circle-color': ['get', 'color'],
-                    "circle-stroke-color": "white",
-                    "circle-stroke-width": 2
+
+            map.loadImage('icons/icon.png',
+                (error, image) => {
+                    if (error) throw error;
+
+                    map.addImage('oicon', image);
+                    map.addLayer({
+                        'id': 'main',
+                        'type': 'symbol',
+                        'source': 'main', // reference the data source
+                        'layout': {
+                            'icon-image': 'oicon', // reference the image
+                            'icon-size': 0.7,
+                            'icon-allow-overlap': true,
+                            'icon-offset': [0, -20]
+                        }
+                    });
                 }
-            });
+            );
+
+            // map.addLayer({
+            //     'id': 'main1',
+            //     'type': 'circle',
+            //     'source': 'main',
+            //     'paint': {
+            //         'circle-radius': 1,
+            //         'circle-color': ['get', 'color'],
+            //         "circle-stroke-color": "white",
+            //         "circle-stroke-width": 2
+            //     }
+            // });
+            let popup;
+            let id;
 
             map.on('click', 'main', (e) => {
+
+
                 // Copy coordinates array.
                 const coordinates = e.features[0].geometry.coordinates.slice();
                 const data = e.features[0].properties;
@@ -281,11 +357,20 @@
                     <div class="place-name">${data['place_name']}</div>
                     <div class="learn-more">${data['description']}</div>
                     </div>`
-                new mapboxgl.Popup({
+
+                if (popup && id === data.id) {
+                    popup.remove();
+                    id = null;
+                    return
+                }
+
+                id = data.id
+                popup = new mapboxgl.Popup({
                     closeButton: false,
                     // closeOnClick: false,
                     // closeOnMove: true,
                     // maxWidth: "auto"
+                    offset: [0, -30]
                 })
                     .setLngLat(coordinates)
                     .setHTML(description)
@@ -316,10 +401,11 @@
                 })
             const pins = json
                 .filter(pin => +pin.lat >= -90 && +pin.lat <= 90)
-                .map(pin => {
+                .map((pin, key) => {
                     const { lat, lon, name, type } = pin
                     const colorIndex = Array.from(main.filters).indexOf(type)
                     return turf.point([lon, lat], {
+                        id: key,
                         name,
                         type,
                         ...pin
@@ -338,31 +424,42 @@
         }
 
 
-        // function buildCheckBox({ initState = "checked", name, callback, labelCallback, plusShow = true, plusCallback, tooltip }) {
-        //     const div = document.createElement('div');
-        //     div.className = 'check-item'
+        function createCustomCheckbox(labelText, action, checked = true) {
+            // Create a new label element
+            const div = document.createElement("div")
+            div.className = "switcher-div filter-label"
 
-        //     const checkbox = document.createElement('input');
-        //     checkbox.checked = initState
-        //     checkbox.dataset.circuit = name
-        //     checkbox.type = "checkbox";
-        //     checkbox.name = "name";
-        //     checkbox.value = "value";
-        //     checkbox.id = "";
-        //     checkbox.addEventListener("change", () => {
-        //         if (typeof callback === "function") callback(checkbox.checked)
-        //     })
+            const label = document.createElement("label")
+            label.className = "switch"
 
-        //     const label = document.createElement('span')
-        //     label.htmlFor = "";
-        //     label.className = 'tooltip-container cooltipz--top cooltipz--static'
-        //     label.appendChild(document.createTextNode(name));
+            const checkbox = document.createElement("input")
+            checkbox.type = "checkbox"
+            checkbox.checked = checked
 
-        //     div.appendChild(checkbox);
-        //     div.appendChild(label);
+            const img = document.createElement("img")
+            img.src = "icons/noun-check-mark.png"
+            img.className = "check-mark"
 
-        //     return div
-        // }
+            const text = document.createElement("div")
+            text.innerText = labelText
+
+            label.appendChild(checkbox)
+            label.appendChild(img)
+
+            div.appendChild(label)
+            div.appendChild(text)
+
+            div.addEventListener("click", () => {
+                checkbox.checked = !checkbox.checked
+                img.style.opacity = checkbox.checked ? "1" : "0.1"
+
+                if (typeof action === "function") {
+                    action(checkbox.checked)
+                }
+            })
+
+            return div
+        }
 
         function buildSwitcher(labelText, action, checked = true) {
 
