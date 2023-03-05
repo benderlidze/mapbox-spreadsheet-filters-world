@@ -10,11 +10,73 @@
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
-    <link href='https://fonts.googleapis.com/css?family=Nunito Sans' rel='stylesheet'>
-    <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&display=swap" rel="stylesheet">
-
 
     <style>
+        /* Start Custom Fonts CSS */
+        @font-face {
+            font-family: 'Alegreya';
+            font-style: normal;
+            font-weight: 400;
+            font-display: auto;
+            src: url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-VariableFont_wght.woff2') format('woff2'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-VariableFont_wght.woff') format('woff'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-VariableFont_wght.ttf') format('truetype'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-VariableFont_wght.svg#Alegreya') format('svg');
+        }
+
+        @font-face {
+            font-family: 'Alegreya';
+            font-style: italic;
+            font-weight: 400;
+            font-display: auto;
+            src: url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-Italic-VariableFont_wght.woff2') format('woff2'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-Italic-VariableFont_wght.woff') format('woff'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-Italic-VariableFont_wght.ttf') format('truetype'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-Italic-VariableFont_wght.svg#Alegreya') format('svg');
+        }
+
+        @font-face {
+            font-family: 'Alegreya';
+            font-style: normal;
+            font-weight: 600;
+            font-display: auto;
+            src: url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-SemiBold.woff2') format('woff2'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-SemiBold.woff') format('woff'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-SemiBold.ttf') format('truetype'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/Alegreya-SemiBold.svg#Alegreya') format('svg');
+        }
+
+        /* End Custom Fonts CSS */
+        /* Start Custom Fonts CSS */
+        @font-face {
+            font-family: 'Nunito Sans (Custom)';
+            font-style: normal;
+            font-weight: 300;
+            font-display: auto;
+            src: url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-Light.woff2') format('woff2'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-Light.woff') format('woff'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-Light.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Nunito Sans (Custom)';
+            font-style: normal;
+            font-weight: 400;
+            font-display: auto;
+            src: url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-Regular.woff2') format('woff2'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-Regular.woff') format('woff'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-Regular.ttf') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'Nunito Sans (Custom)';
+            font-style: normal;
+            font-weight: 600;
+            font-display: auto;
+            src: url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-SemiBold.woff2') format('woff2'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-SemiBold.woff') format('woff'),
+                url('https://staging.savory.global/wp-content/uploads/2022/08/NunitoSans-SemiBold.ttf') format('truetype');
+        }
 
         body {
             margin: 0;
@@ -148,7 +210,7 @@
         }
 
         .filter-label {
-            font-family: 'Nunito Sans', sans-serif;
+            font-family: 'Nunito Sans (Custom)', sans-serif;
             font-size: 0.625rem;
             color: #1e2022;
             text-transform: uppercase;
@@ -157,7 +219,7 @@
         }
 
         .learn-more {
-            font-family: 'Nunito Sans', sans-serif;
+            font-family: 'Nunito Sans (Custom)', sans-serif;
             font-size: 0.625rem;
             color: #db8a33 !important;
             display: flex;
@@ -176,7 +238,7 @@
 
 
         .type {
-            font-family: 'Nunito Sans', sans-serif;
+            font-family: 'Nunito Sans (Custom)', sans-serif;
             font-size: 0.625rem;
             color: #db8a33;
             text-transform: uppercase;
@@ -185,7 +247,7 @@
         }
 
         .title {
-            font-family: Alegreya;
+            font-family: 'Alegreya';
             font-size: 1.5rem;
             color: #1e2022;
             padding: 5px 0px;
@@ -193,7 +255,7 @@
         }
 
         .place-name {
-            font-family: 'Nunito Sans', sans-serif;
+            font-family: 'Nunito Sans (Custom)', sans-serif;
             font-size: 0.875rem;
             color: #1e2022;
             /* font-weight: bold; */
