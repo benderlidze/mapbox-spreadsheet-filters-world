@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <title>Map</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -28,9 +29,9 @@
         #filters {
             background-color: white;
             position: absolute;
-            top: 20px;
-            right: 20px;
-            border-radius: 10px;
+            top: 10px;
+            right: 10px;
+            border-radius: 4px;
             z-index: 10;
             box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
         }
@@ -47,7 +48,7 @@
         .switcher-div {
             display: flex;
             align-items: center;
-            padding: 10px 20px;
+            padding: 10px 20px 10px 10px;
             cursor: pointer;
         }
 
@@ -132,7 +133,6 @@
         }
 
         #loading {
-            background-color: white;
             position: absolute;
             border-radius: 10px;
             z-index: 10;
@@ -158,12 +158,12 @@
             font-family: 'Nunito Sans', sans-serif;
             font-size: 0.625rem;
             color: #db8a33 !important;
-            letter-spacing: 0.05em;
             display: flex;
             justify-content: flex-end;
-            padding-top: 50px;
+            padding-top: 15px;
             letter-spacing: 1.4px;
             font-weight: 600;
+            align-items: center;
         }
 
         .learn-more a {
@@ -172,12 +172,6 @@
             text-decoration: none;
         }
 
-        .learn-more a::after {
-            content: '\2192';
-            margin-left: 5px;
-            font-size: 16px;
-            font-weight: 500;
-        }
 
         .type {
             font-family: 'Nunito Sans', sans-serif;
@@ -193,8 +187,7 @@
             font-size: 1.5rem;
             color: #1e2022;
             padding: 5px 0px;
-            line-height: 40px;
-
+            line-height: 28px;
         }
 
         .place-name {
@@ -203,14 +196,14 @@
             color: #1e2022;
             /* font-weight: bold; */
             text-transform: uppercase;
-            font-weight: 600;
+            font-weight: 400;
             letter-spacing: 1.4px;
         }
 
         .mapboxgl-popup-content {
-            min-width: 350px !important;
+            min-width: 250px !important;
             min-height: 100px !important;
-            padding: 20px;
+            padding: 20px 20px 10px 20px;
             box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.5);
             border-radius: 10px !important;
         }
@@ -228,7 +221,9 @@
 </head>
 
 <body>
-    <div id="loading">Loading data...</div>
+    <div id="loading">
+        <object type="image/svg+xml" data="icons/Spinner_px.svg"></object>
+    </div>
     <div id="filters"></div>
     <div id="map"></div>
     <script>
@@ -245,7 +240,9 @@
             style: 'mapbox://styles/savoryinstitute/cl9syq6l9001115n0owx4m3r8'
         });
 
-        map.addControl(new mapboxgl.NavigationControl(), 'top-left');
+        map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-left');
+
+
 
         const main = {
             data: [],
@@ -262,7 +259,8 @@
                 spreadsheets.map(d => d3.csv(d.link))
             ).then(arr => {
 
-                const types = [...new Set(arr[0].map(d => d.type))]
+                console.log('arr[0]', arr[0]);
+                const types = [...new Set(arr[0].filter(d => d.filter_type !== "").map(d => d.filter_type))]
                 if (types) {
                     types.forEach(typeStr => {
                         const type = typeStr.toLowerCase()
@@ -288,7 +286,7 @@
                             }
                             console.log('checked', checked);
                             //update pins 
-                            const filteredPins = main.data.filter(d => main.filters.has(d.properties.type.toLowerCase()))
+                            const filteredPins = main.data.filter(d => d.properties.filter_type === "" || main.filters.has(d.properties.filter_type.toLowerCase()))
                             map.getSource("main").setData(turf.featureCollection(filteredPins))
                         }, true))
 
@@ -352,10 +350,17 @@
                 }
 
                 const description = `<div>
-                    <div class="type">${data['type']}</div>
-                    <div class="title">${data['title']}</div>
-                    <div class="place-name">${data['place_name']}</div>
-                    <div class="learn-more">${data['description']}</div>
+                        <div class="type">${data['popup_type']}</div>
+                        <div class="title">${data['title']}</div>
+                        <div class="place-name">${data['place_name']}</div>
+                        <div class="learn-more">
+                            ${data['description']}
+
+                            <svg width="40px" height="30px" preserveAspectRatio="none" version="1.1" viewBox="0 0 700 600" xmlns="http://www.w3.org/2000/svg">
+                                <path fill="#db8a33" d="m481.75 201.75c-4.5547 4.5547-4.5547 11.945 0 16.5l50.086 50.082h-391.84c-6.4414 0-11.668 5.2266-11.668 11.668s5.2266 11.668 11.668 11.668h391.84l-50.086 50.082c-4.5547 4.5547-4.5547 11.945 0 16.5s11.945 4.5547 16.5 0l70-70c4.5547-4.5547 4.5547-11.945 0-16.5l-70-70c-4.5547-4.5547-11.945-4.5547-16.5 0z" fill-rule="evenodd"/>
+                            </svg>
+
+                        </div>
                     </div>`
 
                 if (popup && id === data.id) {
@@ -415,13 +420,13 @@
             return pins
         }
 
-        function filterData() {
-            const pins = main.data.filter(pin => {
-                const filter = Array.from(main.filters)
-                return filter.includes(pin.properties.type)
-            })
-            map.getSource("main").setData(turf.featureCollection(pins))
-        }
+        // function filterData() {
+        //     const pins = main.data.filter(pin => {
+        //         const filter = Array.from(main.filters)
+        //         return pin.properties.filter_type === "" || filter.includes(pin.properties.filter_type)
+        //     })
+        //     map.getSource("main").setData(turf.featureCollection(pins))
+        // }
 
 
         function createCustomCheckbox(labelText, action, checked = true) {
