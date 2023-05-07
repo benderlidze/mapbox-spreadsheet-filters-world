@@ -292,6 +292,17 @@
     <div id="map"></div>
     <script>
 
+        let hub = '';
+        const url = (parent !== window) ? document.referrer : document.location;
+        if (typeof url === 'string') {
+            const regex = /\/hubs\/([a-z\_\-]*)/;
+            const match = url.match(regex);
+            if (match !== null) {
+                console.log(match[1]);
+                hub = match[1];
+            }
+        }
+
         const switchersEnableDiv = document.getElementById("filters")
         const loading = document.getElementById("loading")
 
@@ -305,9 +316,8 @@
             cooperativeGestures: true,
         });
 
-        map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-left');
-
-
+        const zoomControll = new mapboxgl.NavigationControl({ showCompass: false });
+        map.addControl(zoomControll, 'top-left');
 
         const main = {
             data: [],
@@ -341,8 +351,6 @@
                         //     map.getSource("main").setData(turf.featureCollection(filteredPins))
                         // }, true))
 
-
-
                         switchersEnableDiv.appendChild(createCustomCheckbox(type, checked => {
                             if (checked) {
                                 main.filters.add(type)
@@ -358,8 +366,25 @@
 
                     })
                 }
-                map.getSource("main").setData(turf.featureCollection(buildData(arr[0])))
+                const collection = turf.featureCollection(buildData(arr[0]))
+                map.getSource("main").setData(collection)
                 loading.style.display = "none"
+
+                if (hub && hub !== "") {
+                    console.log('hub!!!!!!!', hub);
+
+                    map.removeControl(zoomControll)
+                    map.once("idle", () => {
+                        console.log('collection', collection);
+                        const pin = collection.features.find(d => d.properties.url === hub)
+                        if (pin && pin.geometry) {
+                            map.flyTo({
+                                center: pin.geometry.coordinates,
+                                zoom: 13
+                            })
+                        }
+                    })
+                }
             })
 
             map.addSource('main', {
