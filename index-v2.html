@@ -292,19 +292,23 @@
     <div id="map"></div>
     <script>
 
+        const switchersEnableDiv = document.getElementById("filters")
+        const loading = document.getElementById("loading")
+
+        //----------SINGLE PAGE-----------
         let hub = '';
-        const url = (parent !== window) ? document.referrer : document.location;
-        if (typeof url === 'string') {
+        var url = new URL(document.location.href);
+        var parameterValue = url.searchParams.get("url");
+        if (typeof parameterValue === 'string') {
             const regex = /\/hubs\/([a-z\_\-]*)/;
-            const match = url.match(regex);
+            const match = parameterValue.match(regex);
             if (match !== null) {
                 console.log(match[1]);
                 hub = match[1];
+                switchersEnableDiv.style.display = 'none'
             }
         }
-
-        const switchersEnableDiv = document.getElementById("filters")
-        const loading = document.getElementById("loading")
+        //----------SINGLE PAGE-----------
 
         mapboxgl.accessToken = 'pk.eyJ1Ijoic2F2b3J5aW5zdGl0dXRlIiwiYSI6ImFJbDI3Qm8ifQ.usgK1Wk7eQAbG6Jjp7knGQ';
         const map = new mapboxgl.Map({
